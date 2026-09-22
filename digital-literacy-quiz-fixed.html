@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0c1020" />
+  <title>Цифровой квест — квиз по цифровой грамотности</title>
+  <style>
+    :root{
+      --bg:#f5f7ff;
+      --surface:#ffffff;
+      --surface-2:#f0f3ff;
+      --text:#1a2140;
+      --muted:#6d7594;
+      --purple:#6c4cff;
+      --purple-2:#8a6cff;
+      --lime:#c9ff3f;
+      --cyan:#4be1d2;
+      --yellow:#ffd75e;
+      --pink:#ff6f9f;
+      --danger:#ef4d68;
+      --ok:#18b97a;
+      --line:#e5e9f6;
+      --shadow:0 24px 70px rgba(49,58,111,.13);
+      --soft-shadow:0 10px 30px rgba(49,58,111,.08);
+      --radius:30px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 8% 5%,rgba(201,255,63,.42),transparent 20%),
+        radial-gradient(circle at 92% 8%,rgba(108,76,255,.18),transparent 21%),
+        radial-gradient(circle at 92% 88%,rgba(75,225,210,.22),transparent 24%),
+        linear-gradient(180deg,#fafbff 0%,var(--bg) 100%);
+      overflow-x:hidden;
+    }
+    body:before,body:after{content:"";position:fixed;z-index:-1;border-radius:999px;filter:blur(2px);pointer-events:none}
+    body:before{width:180px;height:180px;left:-70px;top:42%;background:rgba(255,111,159,.12);transform:rotate(18deg)}
+    body:after{width:130px;height:130px;right:-38px;top:48%;background:rgba(255,215,94,.28)}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    button:focus-visible,input:focus-visible{outline:4px solid rgba(108,76,255,.18);outline-offset:2px}
+    .shell{width:min(1160px,calc(100% - 32px));margin:0 auto;padding:20px 0 54px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:8px 2px 24px}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:-.025em;color:var(--text)}
+    .brand-badge{width:46px;height:46px;border-radius:16px;background:var(--lime);display:grid;place-items:center;font-size:21px;box-shadow:0 10px 24px rgba(164,205,34,.22);transform:rotate(-4deg)}
+    .brand small{display:block;color:var(--muted);font-weight:650;font-size:12px;letter-spacing:.015em;margin-top:1px}
+    .ghost{border:1px solid var(--line);background:rgba(255,255,255,.78);color:var(--text);padding:11px 16px;border-radius:15px;font-weight:750;box-shadow:0 6px 16px rgba(49,58,111,.05);transition:.18s}
+    .ghost:hover{transform:translateY(-1px);background:#fff;border-color:#d8def1}
+    .view{display:none}.view.active{display:block;animation:rise .35s ease both}
+    @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+    .panel{background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.85);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(14px)}
+    .hero{display:grid;grid-template-columns:1.17fr .83fr;gap:20px;align-items:stretch}
+    .hero-main{padding:clamp(34px,5.4vw,68px);position:relative;overflow:hidden;background:linear-gradient(145deg,#ffffff 0%,#fbfaff 60%,#f5f1ff 100%)}
+    .hero-main:before{content:"01";position:absolute;right:26px;bottom:-34px;font-size:190px;line-height:1;font-weight:950;letter-spacing:-.08em;color:rgba(108,76,255,.055);pointer-events:none}
+    .hero-main:after{content:"";position:absolute;width:150px;height:150px;border-radius:42px;right:45px;top:36px;background:linear-gradient(145deg,var(--lime),#efff9a);transform:rotate(13deg);z-index:0;box-shadow:0 22px 45px rgba(175,216,47,.18)}
+    .hero-main>*{position:relative;z-index:1}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;background:#f1edff;color:#5b3cff;font-weight:850;font-size:13px;border:1px solid #e1d8ff}
+    h1{font-size:clamp(42px,6.7vw,76px);line-height:.98;margin:24px 0 22px;letter-spacing:-.062em;max-width:790px;color:#151a35}
+    .hero-main p{font-size:clamp(16px,2vw,20px);line-height:1.62;color:var(--muted);max-width:700px;margin:0;font-weight:520}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+    .primary{border:0;background:linear-gradient(135deg,var(--purple),var(--purple-2));color:#fff;padding:14px 20px;border-radius:16px;font-weight:850;box-shadow:0 12px 24px rgba(108,76,255,.22);transition:.18s}
+    .primary:hover{transform:translateY(-2px);box-shadow:0 16px 30px rgba(108,76,255,.28)}
+    .secondary{border:1px solid var(--line);background:#fff;color:var(--text);padding:13px 17px;border-radius:15px;font-weight:800;box-shadow:0 8px 20px rgba(49,58,111,.06);transition:.18s}
+    .secondary:hover{transform:translateY(-1px);border-color:#d4daf0;background:#fbfcff}
+
+    .hero-side{padding:22px;display:flex;flex-direction:column;gap:16px;background:linear-gradient(160deg,#201a45 0%,#302665 58%,#44358b 100%);color:#fff;border:none;position:relative;overflow:hidden}
+    .hero-side:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-75px;bottom:-75px;background:rgba(201,255,63,.18)}
+    .statgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:relative;z-index:1}
+    .stat{padding:18px;border-radius:20px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.13)}
+    .stat strong{font-size:30px;display:block;letter-spacing:-.04em}.stat span{color:#d5d1ec;font-size:13px}
+    .route{display:flex;flex-direction:column;gap:8px;margin-top:2px;position:relative;z-index:1}
+    .route-item{display:flex;gap:12px;align-items:center;padding:12px 13px;border-radius:17px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.07)}
+    .route-item:nth-child(2),.route-item:nth-child(4){background:rgba(255,255,255,.11)}
+    .route-n{width:31px;height:31px;display:grid;place-items:center;border-radius:10px;background:var(--lime);color:#202636;font-weight:950;font-size:13px;flex:0 0 auto}
+    .route-item span{font-size:14px;font-weight:780}.route-item small{display:block;color:#c4c0dc;margin-top:2px;font-weight:520}
+    .tip{margin-top:auto;padding:14px 15px;border-radius:18px;background:rgba(201,255,63,.12);border:1px solid rgba(201,255,63,.24);color:#f1ffd0;font-size:14px;line-height:1.5;position:relative;z-index:1}
+
+    .round-screen{text-align:center;padding:64px 30px;background:linear-gradient(160deg,#fff 0%,#f8f6ff 100%);position:relative;overflow:hidden}
+    .round-screen:before,.round-screen:after{content:"";position:absolute;border-radius:999px;pointer-events:none}
+    .round-screen:before{width:180px;height:180px;background:rgba(201,255,63,.35);left:-65px;top:-70px}
+    .round-screen:after{width:220px;height:220px;background:rgba(75,225,210,.16);right:-70px;bottom:-90px}
+    .round-screen>*{position:relative;z-index:1}
+    .round-icon{width:112px;height:112px;border-radius:32px;margin:0 auto 18px;display:grid;place-items:center;font-size:58px;background:#fff;box-shadow:0 18px 45px rgba(49,58,111,.12);transform:rotate(-3deg)}
+    .round-screen h2{font-size:clamp(36px,5vw,58px);letter-spacing:-.05em;margin:13px 0;color:#171c38}
+    .round-screen p{color:var(--muted);max-width:660px;margin:0 auto 25px;line-height:1.65;font-size:17px}
+    .round-tags{display:flex;justify-content:center;flex-wrap:wrap;gap:9px;margin:22px 0 30px}
+    .round-tags span{padding:9px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px;color:#535b7a;font-weight:700;box-shadow:0 5px 14px rgba(49,58,111,.04)}
+
+    .quiz-wrap{display:grid;grid-template-columns:265px 1fr;gap:18px;align-items:start}
+    .sidebar{padding:20px;position:sticky;top:18px;background:#201a45;color:#fff;border:none;box-shadow:0 24px 60px rgba(42,34,91,.2)}
+    .sidebar .eyebrow{background:rgba(201,255,63,.12);border-color:rgba(201,255,63,.18);color:#eaffaa}
+    .round-title{font-size:22px;font-weight:900;margin:16px 0 5px;letter-spacing:-.035em}.round-sub{color:#c6c2dc;font-size:13px;line-height:1.5;margin-bottom:20px}
+    .progress{height:11px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin:13px 0 9px;padding:2px}
+    .progress>span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--lime),#82f3c5);border-radius:999px;transition:.35s}
+    .mini{display:flex;justify-content:space-between;color:#bdb8d6;font-size:12px;font-weight:700}
+    .scorebox{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+    .scorepill{padding:13px;border-radius:16px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.09)}
+    .scorepill b{display:block;font-size:23px;letter-spacing:-.04em}.scorepill small{color:#c6c2dc}
+
+    .quiz-card{padding:clamp(24px,4vw,46px);min-height:570px;background:rgba(255,255,255,.96)}
+    .q-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--muted);font-size:13px;font-weight:700}
+    .q-chip{padding:8px 11px;border-radius:999px;background:#eafff8;color:#137b6d;border:1px solid #c8f2e9;font-weight:850}
+    .question{font-size:clamp(27px,3.6vw,40px);line-height:1.12;letter-spacing:-.045em;margin:23px 0 11px;color:#171c38}
+    .context{color:var(--muted);line-height:1.65;margin:0 0 28px;max-width:780px;font-size:15px}
+    .options{display:grid;gap:11px}
+    .option{display:flex;gap:13px;align-items:flex-start;padding:17px;border-radius:19px;border:1.5px solid var(--line);background:#fbfcff;transition:.18s;cursor:pointer;font-weight:650;line-height:1.45;box-shadow:0 5px 14px rgba(49,58,111,.035)}
+    .option:hover{background:#f7f5ff;border-color:#d8cffd;transform:translateY(-1px)}
+    .option input{margin-top:2px;accent-color:var(--purple);width:19px;height:19px;flex:0 0 auto}
+    .option.selected{border-color:#8d76ff;background:#f1edff;box-shadow:0 0 0 3px rgba(108,76,255,.07)}
+    .option.correct{border-color:#64d7ac;background:#ecfff7}.option.wrong{border-color:#ff9bac;background:#fff1f4}
+    .binary-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+    .binary-btn{padding:28px;border-radius:23px;border:1.5px solid var(--line);background:#fbfcff;color:var(--text);font-weight:900;font-size:19px;box-shadow:var(--soft-shadow);transition:.18s}
+    .binary-btn:hover{transform:translateY(-2px);background:#fff}
+    .binary-btn.safe{border-color:#b7ebd7;background:#f0fff9}.binary-btn.risky{border-color:#ffc1cc;background:#fff5f7}
+    .text-answer{width:100%;padding:19px 20px;border-radius:19px;background:#fbfcff;border:1.5px solid var(--line);outline:none;color:var(--text);font-size:18px;font-weight:650}
+    .text-answer:focus{border-color:#8b73ff;box-shadow:0 0 0 4px rgba(108,76,255,.10);background:#fff}
+    .order-list{display:grid;gap:10px}
+    .order-item{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:14px;border:1.5px solid var(--line);border-radius:18px;background:#fbfcff;box-shadow:0 5px 14px rgba(49,58,111,.035)}
+    .order-num{width:36px;height:36px;border-radius:11px;background:#efeaff;color:#5d43e8;display:grid;place-items:center;font-weight:950}
+    .order-actions{display:flex;gap:6px}.order-actions button{width:36px;height:36px;border-radius:11px;border:1px solid var(--line);background:#fff;color:var(--text);font-weight:900;transition:.15s}.order-actions button:hover{background:#f0edff;border-color:#d8cffd}
+    .feedback{display:none;margin-top:21px;padding:17px 19px;border-radius:19px;line-height:1.56;font-size:14px}
+    .feedback.show{display:block;animation:rise .25s ease both}.feedback.good{background:#edfff7;border:1px solid #b8efd9;color:#174f3d}.feedback.bad{background:#fff2f4;border:1px solid #ffc9d2;color:#69323d}
+    .feedback b{display:block;margin-bottom:4px;font-size:15px}.feedback span{color:inherit;opacity:.9}
+    .card-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:30px;padding-top:18px;border-top:1px solid #edf0f8}
+    .hint{color:var(--muted);font-size:13px;line-height:1.4}.action-row{display:flex;gap:10px;margin-left:auto}
+    .primary:disabled,.secondary:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+
+    .result{padding:clamp(32px,5vw,58px);text-align:center;background:linear-gradient(160deg,#fff 0%,#fbfaff 100%);position:relative;overflow:hidden}
+    .result:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-90px;top:-110px;background:rgba(201,255,63,.25)}
+    .result>*{position:relative;z-index:1}
+    .result-badge{display:inline-grid;place-items:center;width:118px;height:118px;border-radius:34px;background:linear-gradient(145deg,#f0ecff,#ffffff);font-size:56px;border:1px solid #e6e0ff;box-shadow:0 18px 45px rgba(108,76,255,.12);transform:rotate(-4deg)}
+    .result h2{font-size:clamp(36px,5vw,58px);margin:22px 0 9px;letter-spacing:-.05em;color:#171c38}.result p{color:var(--muted);max-width:700px;margin:0 auto;line-height:1.65;font-size:16px}
+    .result-score{font-size:68px;font-weight:950;letter-spacing:-.06em;margin:24px 0 5px;color:var(--purple)}.result-score small{font-size:20px;color:#9299b1;font-weight:750}
+    .breakdown{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:30px 0}
+    .break{padding:16px 8px;border-radius:18px;background:#fbfcff;border:1px solid var(--line);box-shadow:0 8px 20px rgba(49,58,111,.045)}.break b{display:block;font-size:23px;color:#292f51}.break span{font-size:12px;color:var(--muted);font-weight:650}
+    .teacher{margin-top:20px;text-align:left;padding:19px;border-radius:19px;background:#f7f8fd;border:1px solid var(--line)}.teacher summary{cursor:pointer;font-weight:850;color:#303756}.teacher p{margin:12px 0 0;font-size:14px}
+    .footer-note{text-align:center;color:#9299b1;font-size:12px;margin-top:22px}
+
+    @media(max-width:920px){
+      .hero,.quiz-wrap{grid-template-columns:1fr}.sidebar{position:static}.hero-side{min-height:auto}.quiz-card{min-height:0}.breakdown{grid-template-columns:repeat(2,1fr)}
+      .sidebar{display:grid;grid-template-columns:1.2fr .8fr;gap:12px 18px}.sidebar .eyebrow,.sidebar .round-title,.sidebar .round-sub{grid-column:1}.sidebar .progress,.sidebar .mini{grid-column:1}.sidebar .scorebox{grid-column:2;grid-row:1/5;align-self:center;margin:0}
+    }
+    @media(max-width:620px){
+      .shell{width:min(100% - 18px,1160px);padding-top:10px}.topbar{padding-bottom:14px}.brand small{display:none}.brand-badge{width:42px;height:42px;border-radius:14px}
+      .hero-main,.hero-side,.quiz-card,.round-screen,.result{border-radius:23px}.hero-main{padding:30px 22px}.hero-main:after{width:100px;height:100px;right:-20px;top:34px;opacity:.7}.hero-main:before{font-size:120px;right:10px;bottom:-18px}
+      h1{font-size:clamp(39px,12vw,56px)}.hero-side{padding:17px}.stat strong{font-size:26px}.route-item{padding:11px 12px}
+      .round-screen{padding:46px 20px}.round-icon{width:94px;height:94px;font-size:50px;border-radius:27px}
+      .sidebar{display:block;padding:18px}.sidebar .scorebox{margin-top:16px}.q-meta{align-items:flex-start}.question{font-size:29px}.quiz-card{padding:23px 18px}
+      .binary-grid{grid-template-columns:1fr}.card-actions{align-items:stretch;flex-direction:column}.action-row{width:100%}.action-row button{flex:1}.order-item{grid-template-columns:36px 1fr}.order-actions{grid-column:2}.breakdown{grid-template-columns:1fr 1fr}.result-score{font-size:56px}.ghost{padding:10px 12px;font-size:13px}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><div class="brand-badge">⚡</div><div>Цифровой квест<small>интерактивный квиз для школьников</small></div></div>
+      <button class="ghost" id="restartTop" type="button">Начать заново</button>
+    </header>
+
+    <main>
+      <section id="startView" class="view active">
+        <div class="hero">
+          <div class="panel hero-main">
+            <div class="eyebrow">🧠 5 раундов · 20 заданий</div>
+            <h1>Насколько ты умеешь жить в цифровом мире?</h1>
+            <p>Здесь не будет скучного теста на термины. Придётся распознавать уловки мошенников, проверять информацию, спорить с нейросетью и принимать решения как настоящий цифровой детектив.</p>
+            <div class="hero-actions">
+              <button class="primary" id="startBtn" type="button">Начать квиз →</button>
+              <button class="secondary" id="rulesBtn" type="button">Как играть</button>
+            </div>
+          </div>
+          <aside class="panel hero-side">
+            <div class="statgrid">
+              <div class="stat"><strong>20</strong><span>заданий</span></div>
+              <div class="stat"><strong>≈15</strong><span>минут</span></div>
+            </div>
+            <div class="route">
+              <div class="route-item"><div class="route-n">1</div><span>Один точный ответ<small>цифровая база</small></span></div>
+              <div class="route-item"><div class="route-n">2</div><span>Выбери всё верное<small>кибербезопасность</small></span></div>
+              <div class="route-item"><div class="route-n">3</div><span>Безопасно или рискованно?<small>ситуации из жизни</small></span></div>
+              <div class="route-item"><div class="route-n">4</div><span>Ответ без подсказки<small>думай самостоятельно</small></span></div>
+              <div class="route-item"><div class="route-n">5</div><span>Собери правильный порядок<small>финальные миссии</small></span></div>
+            </div>
+            <div class="tip">💡 После каждого ответа появится короткое объяснение — квиз можно использовать прямо на уроке.</div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="roundView" class="view">
+        <div class="panel round-screen">
+          <div class="round-icon" id="roundIcon">🎯</div>
+          <div class="eyebrow" id="roundEyebrow">Раунд 1 из 5</div>
+          <h2 id="roundName">Цифровой разогрев</h2>
+          <p id="roundDesc"></p>
+          <div class="round-tags" id="roundTags"></div>
+          <button class="primary" id="roundStartBtn" type="button">Войти в раунд →</button>
+        </div>
+      </section>
+
+      <section id="quizView" class="view">
+        <div class="quiz-wrap">
+          <aside class="panel sidebar">
+            <div class="eyebrow" id="sideRound">Раунд 1</div>
+            <div class="round-title" id="sideTitle">Цифровой разогрев</div>
+            <div class="round-sub" id="sideDesc"></div>
+            <div class="progress"><span id="progressBar"></span></div>
+            <div class="mini"><span id="progressText">1 из 4</span><span id="percentText">25%</span></div>
+            <div class="scorebox">
+              <div class="scorepill"><b id="scoreNow">0</b><small>баллов</small></div>
+              <div class="scorepill"><b id="streakNow">0</b><small>серия</small></div>
+            </div>
+          </aside>
+
+          <section class="panel quiz-card">
+            <div class="q-meta"><span class="q-chip" id="typeChip">Один ответ</span><span id="qNumber">Вопрос 1</span></div>
+            <h2 class="question" id="questionText"></h2>
+            <p class="context" id="questionContext"></p>
+            <div id="answerArea"></div>
+            <div class="feedback" id="feedback"></div>
+            <div class="card-actions">
+              <span class="hint" id="hintText">Выбери вариант и нажми «Проверить»</span>
+              <div class="action-row">
+                <button class="secondary" id="checkBtn" type="button">Проверить</button>
+                <button class="primary" id="nextBtn" type="button" style="display:none">Дальше →</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="resultView" class="view">
+        <div class="panel result">
+          <div class="result-badge" id="resultEmoji">🏆</div>
+          <h2 id="resultTitle">Цифровой следопыт</h2>
+          <p id="resultText"></p>
+          <div class="result-score"><span id="finalScore">0</span><small> / <span id="maxScore">20</span></small></div>
+          <div class="breakdown" id="breakdown"></div>
+          <button class="primary" id="restartBtn" type="button">Пройти ещё раз</button>
+          <details class="teacher">
+            <summary>Для учителя: как обсуждать результат</summary>
+            <p>После квиза попросите учеников выбрать 2 вопроса, где они ошиблись или сомневались, и объяснить правильное решение своими словами. Особенно полезно обсудить фишинг, публикацию чужих фото, проверку ответов ИИ и действия при взломе аккаунта.</p>
+          </details>
+        </div>
+      </section>
+    </main>
+    <div class="footer-note">Цифровая грамотность · безопасность · критическое мышление · ИИ</div>
+  </div>
+
+  <script>
+    const rounds = [
+      {
+        name:'Цифровой разогрев', icon:'🎯', type:'single', label:'Один ответ',
+        desc:'В каждом задании только один правильный вариант. Быстро проверим базовые цифровые привычки.',
+        tags:['1 правильный ответ','4 задания','база'],
+        questions:[
+          {q:'Какой пароль из этих вариантов самый надёжный?',c:'Представь, что это пароль от аккаунта, который для тебя действительно важен.',o:['qwerty2026','Roman12345','K7!mQ2#vL9@p','school2026'],a:2,e:'Длинная непредсказуемая комбинация с разными типами символов обычно устойчивее к перебору и угадыванию.'},
+          {q:'Ты увидел громкий заголовок: «Учёные доказали: телефоны читают мысли». Что лучше сделать первым?',c:'Новость активно пересылают в школьном чате.',o:['Сразу переслать друзьям','Посмотреть первоисточник и проверить новость в нескольких надёжных источниках','Написать в комментариях, что это ложь','Сделать скриншот и сохранить'],a:1,e:'Громкий заголовок ещё ничего не доказывает. Сначала проверяем первоисточник, автора, дату и подтверждения в независимых источниках.'},
+          {q:'Зачем включать двухфакторную аутентификацию (2FA)?',c:'Например, для почты или соцсети.',o:['Чтобы интернет работал быстрее','Чтобы вход требовал не только пароль, но и второй способ подтверждения','Чтобы удалить рекламу','Чтобы пароль можно было сделать короче'],a:1,e:'2FA добавляет второй барьер: даже если пароль украли, злоумышленнику всё ещё нужен код, ключ или подтверждение на устройстве.'},
+          {q:'Нейросеть уверенно написала факт для твоего доклада. Как поступить?',c:'Ответ звучит очень убедительно и написан без ошибок.',o:['Можно сразу вставлять — нейросеть не ошибается','Нужно проверить факт по надёжным источникам','Достаточно спросить ту же нейросеть ещё раз','Если текст длинный, он наверняка правильный'],a:1,e:'ИИ может уверенно выдавать неточности и вымышленные детали. Важные факты, даты и цитаты нужно проверять.'}
+        ]
+      },
+      {
+        name:'Кибердетектив', icon:'🕵️', type:'multi', label:'Несколько ответов',
+        desc:'Правильных вариантов может быть несколько. Выбирай все признаки и действия, которые подходят.',
+        tags:['несколько ответов','4 задания','кибербезопасность'],
+        questions:[
+          {q:'Какие признаки могут указывать на фишинговое письмо?',c:'Письмо якобы от известного сервиса просит срочно подтвердить аккаунт.',o:['Странный адрес отправителя','Давление: «сделайте это за 10 минут»','Просьба перейти по ссылке и ввести пароль','Официальный логотип компании'],a:[0,1,2],e:'Логотип легко скопировать. А вот странный домен, давление срочностью и запрос секретных данных — типичные признаки фишинга.'},
+          {q:'Что стоит сделать, если тебе прислали QR-код с обещанием «бесплатной подписки»?',c:'Код висит на листовке без понятного автора.',o:['Проверить, кто разместил код','После сканирования внимательно посмотреть адрес сайта','Ввести данные карты, если страница выглядит красиво','Не вводить личные данные на подозрительном сайте'],a:[0,1,3],e:'QR-код скрывает адрес до сканирования. Внешний вид страницы не доказывает её подлинность.'},
+          {q:'Какие данные лучше не публиковать открыто в соцсетях?',c:'Даже если кажется, что «кому это вообще нужно».',o:['Фото билета с QR-кодом','Домашний адрес','Пароль от Wi‑Fi','Любимая песня'],a:[0,1,2],e:'QR-коды билетов, адрес и пароли могут использовать против тебя. Музыкальные предпочтения обычно не дают прямого доступа к аккаунтам или собственности.'},
+          {q:'Что помогает отличить надёжный источник информации?',c:'Ты готовишь школьный проект и ищешь данные в интернете.',o:['Указаны автор и дата','Есть ссылки на первичные данные или исследования','Заголовок написан КАПСОМ','Информацию подтверждают независимые источники'],a:[0,1,3],e:'Надёжность повышают прозрачное авторство, дата, ссылки на доказательства и независимое подтверждение.'}
+        ]
+      },
+      {
+        name:'Красный флаг', icon:'🚦', type:'binary', label:'Безопасно / рискованно',
+        desc:'Оцени ситуацию целиком. Иногда действие выглядит обычным, но в нём спрятан риск.',
+        tags:['2 варианта','4 ситуации','решения из жизни'],
+        questions:[
+          {q:'Друг пишет: «Срочно проголосуй за меня», присылает незнакомую ссылку и просит войти через соцсеть.',c:'Сообщение пришло с настоящего аккаунта друга.',a:'risky',e:'Даже настоящий аккаунт мог быть взломан. Лучше связаться с другом другим способом и проверить ссылку.'},
+          {q:'Ты обновляешь приложение через официальный магазин приложений на своём телефоне.',c:'Разработчик и название совпадают с установленным приложением.',a:'safe',e:'Официальный магазин снижает риск поддельных установщиков. Всё равно полезно смотреть разработчика и разрешения.'},
+          {q:'В кафе ты подключился к открытому Wi‑Fi и решил войти в интернет-банк.',c:'Сеть не требует пароля и называется почти как кафе.',a:'risky',e:'Открытая или поддельная Wi‑Fi-сеть может быть небезопасной. Для чувствительных операций лучше использовать мобильный интернет или доверенную сеть.'},
+          {q:'Перед публикацией группового фото ты спросил остальных, согласны ли они, чтобы фото появилось в открытом аккаунте.',c:'На фото видны лица одноклассников.',a:'safe',e:'Согласие людей на публикацию — хорошая цифровая привычка и уважение к их приватности.'}
+        ]
+      },
+      {
+        name:'Без подсказки', icon:'✍️', type:'text', label:'Свободный ответ',
+        desc:'Теперь вариантов нет. Введи короткий ответ самостоятельно — важен смысл, а не идеальная формулировка.',
+        tags:['ввод текста','4 задания','без вариантов'],
+        questions:[
+          {q:'Как называется попытка выманить пароль или данные через поддельное письмо, сообщение или сайт?',c:'Напиши одно слово.',a:['фишинг','phishing'],e:'Фишинг — это мошенничество, при котором человека подталкивают добровольно раскрыть секретные данные.'},
+          {q:'Как называется информация о твоих действиях в интернете, которая остаётся после публикаций, поисков и регистраций?',c:'Обычно говорят: «цифровой …».',a:['след','цифровой след'],e:'Цифровой след — данные и следы активности, которые могут сохраняться в сервисах и быть видимыми другим.'},
+          {q:'Что нужно сделать с важным фактом, который тебе выдала нейросеть?',c:'Ответ — один глагол или короткая фраза.',a:['проверить','перепроверить','проверить источник','проверить по источникам','сверить','верифицировать'],e:'Ключевая привычка — проверять важные утверждения по надёжным источникам, особенно числа, даты, цитаты и ссылки.'},
+          {q:'Какой короткий код нельзя сообщать человеку, который звонит и представляется сотрудником банка?',c:'Подсказка: такой код часто приходит в SMS для подтверждения входа или операции.',a:['код из смс','смс код','код подтверждения','одноразовый код','otp','код'],e:'Одноразовые коды подтверждения нельзя диктовать посторонним. Настоящему сотруднику они не нужны для «защиты» аккаунта.'}
+        ]
+      },
+      {
+        name:'Финальная миссия', icon:'🧩', type:'order', label:'Расставь по порядку',
+        desc:'Собери правильную последовательность действий. Передвигай пункты стрелками вверх и вниз.',
+        tags:['порядок действий','4 миссии','финал'],
+        questions:[
+          {q:'Аккаунт в соцсети взломали. Расставь действия в разумном порядке.',c:'Представь, что доступ к почте у тебя ещё есть.',items:['Завершить чужие активные сеансы','Сменить пароль на новый уникальный','Включить или перепроверить 2FA','Предупредить друзей, если от твоего имени рассылали сообщения'],a:['Сменить пароль на новый уникальный','Завершить чужие активные сеансы','Включить или перепроверить 2FA','Предупредить друзей, если от твоего имени рассылали сообщения'],e:'Сначала перекрываем доступ новым паролем, затем выкидываем чужие сеансы, усиливаем защиту и предупреждаем тех, кого могли попытаться обмануть.'},
+          {q:'Ты нашёл сенсационную новость для школьного проекта. Что делать по порядку?',c:'Нужно понять, можно ли ей доверять.',items:['Сравнить с независимыми источниками','Посмотреть автора, дату и сайт','Найти первоисточник или данные','Только после проверки использовать в работе'],a:['Посмотреть автора, дату и сайт','Найти первоисточник или данные','Сравнить с независимыми источниками','Только после проверки использовать в работе'],e:'Хорошая проверка начинается с контекста и происхождения материала, затем — первичные данные и независимое подтверждение.'},
+          {q:'На экране появилось подозрительное окно «Ваш компьютер заражён! Позвоните по номеру». Что делать?',c:'Окно появилось прямо в браузере.',items:['Закрыть подозрительную вкладку/браузер','Не звонить по указанному номеру','Запустить проверку средствами безопасности системы','Если проблема повторяется — обратиться к взрослому/специалисту'],a:['Не звонить по указанному номеру','Закрыть подозрительную вкладку/браузер','Запустить проверку средствами безопасности системы','Если проблема повторяется — обратиться к взрослому/специалисту'],e:'Главное — не выполнять инструкции из пугающего окна. Затем закрываем источник сообщения и проверяем устройство нормальными средствами.'},
+          {q:'Ты хочешь установить новую программу на компьютер. Какой порядок безопаснее?',c:'Программа нужна для учёбы.',items:['Проверить разработчика и отзывы','Найти официальный сайт или доверенный магазин','Скачать установщик','Проверить, какие разрешения просит программа'],a:['Проверить разработчика и отзывы','Найти официальный сайт или доверенный магазин','Скачать установщик','Проверить, какие разрешения просит программа'],e:'Сначала убеждаемся, что программа и разработчик реальны, затем выбираем официальный источник и только после скачивания оцениваем запрашиваемые разрешения.'}
+        ]
+      }
+    ];
+
+    const views=['startView','roundView','quizView','resultView'];
+    const $=id=>document.getElementById(id);
+    let roundIndex=0, questionIndex=0, score=0, streak=0, checked=false, roundScores=Array(rounds.length).fill(0), currentOrder=[];
+
+    function showView(id){views.forEach(v=>$(v).classList.toggle('active',v===id));window.scrollTo({top:0,behavior:'smooth'});}
+    function esc(s){return String(s).replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));}
+    function roundIntro(){
+      const r=rounds[roundIndex]; $('roundIcon').textContent=r.icon;$('roundEyebrow').textContent=`Раунд ${roundIndex+1} из ${rounds.length}`;$('roundName').textContent=r.name;$('roundDesc').textContent=r.desc;
+      $('roundTags').innerHTML=r.tags.map(t=>`<span>${esc(t)}</span>`).join(''); showView('roundView');
+    }
+    function startQuiz(){roundIndex=0;questionIndex=0;score=0;streak=0;roundScores=Array(rounds.length).fill(0);roundIntro();}
+    function renderQuestion(){
+      checked=false; const r=rounds[roundIndex], q=r.questions[questionIndex];
+      $('sideRound').textContent=`Раунд ${roundIndex+1}`;$('sideTitle').textContent=r.name;$('sideDesc').textContent=r.desc;$('scoreNow').textContent=score;$('streakNow').textContent=streak;
+      const pct=Math.round(((questionIndex+1)/r.questions.length)*100);$('progressBar').style.width=pct+'%';$('progressText').textContent=`${questionIndex+1} из ${r.questions.length}`;$('percentText').textContent=pct+'%';
+      $('typeChip').textContent=r.label;$('qNumber').textContent=`Задание ${questionIndex+1}`;$('questionText').textContent=q.q;$('questionContext').textContent=q.c||'';$('feedback').className='feedback';$('feedback').innerHTML='';$('nextBtn').style.display='none';$('checkBtn').style.display=r.type==='binary'?'none':'inline-block';$('checkBtn').disabled=false;
+      const area=$('answerArea'); area.innerHTML='';
+      if(r.type==='single'||r.type==='multi'){
+        area.innerHTML=`<div class="options">${q.o.map((o,i)=>`<label class="option"><input type="${r.type==='single'?'radio':'checkbox'}" name="answer" value="${i}"><span>${esc(o)}</span></label>`).join('')}</div>`;
+        area.querySelectorAll('.option input').forEach(inp=>inp.addEventListener('change',()=>{area.querySelectorAll('.option').forEach(x=>x.classList.toggle('selected',x.querySelector('input').checked));}));
+        $('hintText').textContent=r.type==='single'?'Выбери один вариант':'Можно выбрать несколько вариантов';
+      } else if(r.type==='binary'){
+        area.innerHTML=`<div class="binary-grid"><button class="binary-btn safe" data-v="safe">✅ Безопасно</button><button class="binary-btn risky" data-v="risky">⚠️ Рискованно</button></div>`;
+        area.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>checkBinary(b.dataset.v,b)));
+        $('hintText').textContent='Оцени ситуацию и нажми одну из двух кнопок';
+      } else if(r.type==='text'){
+        area.innerHTML='<input class="text-answer" id="freeInput" type="text" autocomplete="off" placeholder="Введи ответ…">';
+        $('freeInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer();});$('hintText').textContent='Регистр и лишние пробелы не важны';
+      } else if(r.type==='order'){
+        currentOrder=[...q.items].sort(()=>Math.random()-.5); renderOrder();$('hintText').textContent='Используй стрелки, чтобы изменить порядок';
+      }
+      showView('quizView');
+    }
+    function renderOrder(){
+      const area=$('answerArea'); area.innerHTML=`<div class="order-list">${currentOrder.map((item,i)=>`<div class="order-item"><div class="order-num">${i+1}</div><div>${esc(item)}</div><div class="order-actions"><button aria-label="Поднять" data-dir="up" data-i="${i}">↑</button><button aria-label="Опустить" data-dir="down" data-i="${i}">↓</button></div></div>`).join('')}</div>`;
+      area.querySelectorAll('.order-actions button').forEach(b=>b.addEventListener('click',()=>{if(checked)return;const i=+b.dataset.i,j=b.dataset.dir==='up'?i-1:i+1;if(j<0||j>=currentOrder.length)return;[currentOrder[i],currentOrder[j]]=[currentOrder[j],currentOrder[i]];renderOrder();}));
+    }
+    function norm(s){return s.toLowerCase().trim().replace(/ё/g,'е').replace(/[.,!?;:]/g,'').replace(/\s+/g,' ')}
+    function sameSet(a,b){return a.length===b.length&&[...a].sort().every((v,i)=>v===[...b].sort()[i])}
+    function finishCheck(ok, q){
+      checked=true;if(ok){score++;streak++;roundScores[roundIndex]++;}else streak=0;$('scoreNow').textContent=score;$('streakNow').textContent=streak;
+      const f=$('feedback');f.className='feedback show '+(ok?'good':'bad');f.innerHTML=`<b>${ok?'Верно! +1 балл':'Не совсем'}</b><span>${esc(q.e)}</span>`;$('checkBtn').disabled=true;$('checkBtn').style.display='none';$('nextBtn').style.display='inline-block';$('hintText').textContent=ok?'Отлично. Можно двигаться дальше.':'Прочитай объяснение — оно пригодится в следующем раунде.';
+    }
+    function checkBinary(value,button){if(checked)return;const q=rounds[roundIndex].questions[questionIndex],ok=value===q.a;document.querySelectorAll('.binary-btn').forEach(b=>b.disabled=true);button.style.outline=ok?'3px solid rgba(86,227,159,.55)':'3px solid rgba(255,107,122,.55)';finishCheck(ok,q);}
+    function checkAnswer(){
+      if(checked)return;const r=rounds[roundIndex],q=r.questions[questionIndex];let ok=false;
+      if(r.type==='single'){
+        const sel=document.querySelector('input[name="answer"]:checked');if(!sel)return flashHint('Сначала выбери ответ.');ok=+sel.value===q.a;markOptions(q,[+sel.value]);
+      }else if(r.type==='multi'){
+        const vals=[...document.querySelectorAll('input[name="answer"]:checked')].map(x=>+x.value);if(!vals.length)return flashHint('Выбери хотя бы один вариант.');ok=sameSet(vals,q.a);markOptions(q,vals);
+      }else if(r.type==='text'){
+        const v=norm($('freeInput').value);if(!v)return flashHint('Напиши ответ перед проверкой.');ok=q.a.map(norm).some(a=>v===a||v.includes(a));$('freeInput').disabled=true;
+      }else if(r.type==='order'){
+        ok=currentOrder.every((x,i)=>x===q.a[i]);
+      }
+      finishCheck(ok,q);
+    }
+    function markOptions(q,selected){document.querySelectorAll('.option').forEach((el,i)=>{const correct=Array.isArray(q.a)?q.a.includes(i):q.a===i;if(correct)el.classList.add('correct');else if(selected.includes(i))el.classList.add('wrong');el.querySelector('input').disabled=true;});}
+    function flashHint(t){$('hintText').textContent=t;$('hintText').style.color='#ffd166';setTimeout(()=>{$('hintText').style.color='';},900)}
+    function next(){
+      const r=rounds[roundIndex];if(questionIndex<r.questions.length-1){questionIndex++;renderQuestion();return;}
+      if(roundIndex<rounds.length-1){roundIndex++;questionIndex=0;roundIntro();return;}showResult();
+    }
+    function showResult(){
+      const max=rounds.reduce((s,r)=>s+r.questions.length,0),pct=score/max;
+      let emoji='🌱',title='Цифровой исследователь',text='Хорошая база уже есть. Посмотри объяснения к ошибкам — именно они быстрее всего прокачивают цифровую грамотность.';
+      if(pct>=.9){emoji='🏆';title='Цифровой профи';text='Ты уверенно распознаёшь цифровые риски, умеешь проверять информацию и не доверяешь красивой кнопке только потому, что она красивая.'}
+      else if(pct>=.7){emoji='🛡️';title='Цифровой следопыт';text='Очень уверенный результат. Ещё немного практики в спорных ситуациях — и тебя будет сложно поймать на типичные цифровые уловки.'}
+      else if(pct>=.5){emoji='🧭';title='Цифровой навигатор';text='Основные принципы ты понимаешь, но некоторые уловки всё ещё могут застать врасплох. Обрати внимание на пояснения после ошибок.'}
+      $('resultEmoji').textContent=emoji;$('resultTitle').textContent=title;$('resultText').textContent=text;$('finalScore').textContent=score;$('maxScore').textContent=max;
+      $('breakdown').innerHTML=rounds.map((r,i)=>`<div class="break"><b>${roundScores[i]}/${r.questions.length}</b><span>${esc(r.name)}</span></div>`).join('');showView('resultView');
+    }
+    function showRules(){alert('Как играть:\n\n1. В квизе 5 раундов и 20 заданий.\n2. В каждом раунде — своя механика.\n3. За правильный ответ даётся 1 балл.\n4. После проверки читай объяснение — оно часть квиза.\n5. Таймера нет: можно обсуждать ответы всем классом.');}
+    $('startBtn').addEventListener('click',startQuiz);$('rulesBtn').addEventListener('click',showRules);$('roundStartBtn').addEventListener('click',renderQuestion);$('checkBtn').addEventListener('click',checkAnswer);$('nextBtn').addEventListener('click',next);$('restartBtn').addEventListener('click',startQuiz);$('restartTop').addEventListener('click',()=>{if(confirm('Начать квиз заново?'))startQuiz();});
+  </script>
+</body>
+</html>
